@@ -46,7 +46,7 @@ public class LceRetrofitPresenterTest extends MvpLcePresenterTest<YoutubeVO, Sea
 
   @Test
   public void testPresenter() {
-    super.startLceTests(true);
+    super.startLceTests(false);
   }
 
   @Test public void testNetworkException() {

@@ -17,7 +17,7 @@ import com.chilliwifi.you2b.repos.ReposAdapter;
 import com.chilliwifi.you2b.repos.exception.ErrorMessageDeterminer;
 import com.chilliwifi.you2b.searchyou2b.DaggerSearchYouTubeComponent;
 import com.chilliwifi.you2b.searchyou2b.SearchYouTubeComponent;
-import com.chilliwifi.you2b.searchyou2b.SearchYouTubePresenter;
+import com.chilliwifi.you2b.searchyou2b.SearchYouTubeRxPresenter;
 import com.chilliwifi.you2b.searchyou2b.model.YoutubeVO;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.LceViewState;
 import com.hannesdorfmann.mosby.mvp.viewstate.lce.MvpLceViewStateFragment;
@@ -29,7 +29,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class SearchYouTubeFragment
-        extends MvpLceViewStateFragment<SwipeRefreshLayout, YoutubeVO, SearchYouTubeView, SearchYouTubePresenter>
+        extends MvpLceViewStateFragment<SwipeRefreshLayout, YoutubeVO, SearchYouTubeView, SearchYouTubeRxPresenter>
         implements SearchYouTubeView, SwipeRefreshLayout.OnRefreshListener {
 
     @Bind(R.id.recyclerView)
@@ -82,7 +82,7 @@ public class SearchYouTubeFragment
 
 
                 presenter.searchTerm = s;
-                presenter.getVideos(false);
+                presenter.getVideosRx(false);
 
                 searchView.clearFocus();
                 return false;
@@ -120,19 +120,20 @@ public class SearchYouTubeFragment
     }
 
     @Override
-    public SearchYouTubePresenter createPresenter() {
+    public SearchYouTubeRxPresenter createPresenter() {
         return searchYouTubeComponent.presenter();
     }
 
     @Override
     public void setData(YoutubeVO data) {
+        System.out.println("Javier searchyoutubefragment data");
         adapter.setRepos(data);
         adapter.notifyDataSetChanged();
     }
 
     @Override
     public void loadData(boolean pullToRefresh) {
-        presenter.getVideos(pullToRefresh);
+        presenter.getVideosRx(pullToRefresh);
     }
 
     @Override

@@ -15,7 +15,7 @@ public interface SearchYouTubeComponent {
 
   public void inject(SearchYouTubeFragment fragment);
 
-  public SearchYouTubePresenter presenter();
+  public SearchYouTubeRxPresenter presenter();
 
   public ReposAdapter adapter();
 }

@@ -12,6 +12,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Header;
 import retrofit.client.Response;
 import retrofit.http.Query;
+import rx.Observable;
 
 public class MockTestApi implements YouTubeApi {
 
@@ -39,6 +40,18 @@ public class MockTestApi implements YouTubeApi {
         }
     }
 
+    @Override
+    public Observable<YoutubeVO> getVideosRx(@Query("maxResults") int maxResult, @Query("q") String text, @Query("key") String api_key, @Query("pageToken") String nextPage) {
+        Observable<YoutubeVO> observable;
+
+        if (shouldFail) {
+            observable = Observable.error(new Exception("Mock Exception"));
+        } else {
+            observable = Observable.just((YoutubeVO) data);
+
+        }
+        return observable;
+    }
 
     public enum FailReason {
         UNKNOWN,
