@@ -53,6 +53,11 @@ public class MockTestApi implements YouTubeApi {
         return observable;
     }
 
+    @Override
+    public Observable<YoutubeVO> getVideoUrl(@Query("url") String videoId) {
+        return null;
+    }
+
     public enum FailReason {
         UNKNOWN,
         NETWORK,

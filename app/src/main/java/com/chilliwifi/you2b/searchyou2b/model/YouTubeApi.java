@@ -16,5 +16,7 @@ public interface YouTubeApi {
             ("key") String api_key, @Query("pageToken") String nextPage);
 
 
+    @GET("/api/info")
+    Observable<YoutubeVO> getVideoUrl(@Query("url") String videoId);
 
 }

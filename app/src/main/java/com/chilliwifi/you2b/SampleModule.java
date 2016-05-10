@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.chilliwifi.you2b.repos.exception.ErrorMessageDeterminer;
 import com.chilliwifi.you2b.searchyou2b.model.YouTubeApi;
+import com.chilliwifi.you2b.videourl.VideoUrlApi;
 import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
@@ -49,6 +50,22 @@ public class SampleModule {
             .build();
 
     return restAdapter.create(YouTubeApi.class);
+  }
+
+
+  @Provides @Singleton public VideoUrlApi providesGetYouTubeUrl() {
+
+    OkHttpClient client = new OkHttpClient();
+    client.networkInterceptors().add(new StethoInterceptor());
+
+    client.setCache(new Cache(context.getCacheDir(), 10 * 1024 * 1024));
+
+    RestAdapter restAdapter = new RestAdapter.Builder()
+            .setClient(new OkClient(client))
+            .setEndpoint("https://youtube-dl.appspot.com")
+            .build();
+
+    return restAdapter.create(VideoUrlApi.class);
   }
 
   @Provides @Singleton

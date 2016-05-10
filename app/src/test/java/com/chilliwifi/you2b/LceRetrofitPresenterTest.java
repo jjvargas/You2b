@@ -3,7 +3,6 @@ package com.chilliwifi.you2b;
 import com.chilliwifi.you2b.mock.MockTestApi;
 import com.chilliwifi.you2b.repos.exception.NetworkException;
 import com.chilliwifi.you2b.repos.exception.UnexpectedStatusCodeException;
-import com.chilliwifi.you2b.searchyou2b.SearchYouTubePresenter;
 import com.chilliwifi.you2b.searchyou2b.model.YoutubeVO;
 import com.chilliwifi.you2b.searchyou2b.view.SearchYouTubeView;
 import com.hannesdorfmann.mosby.testing.presenter.MvpLcePresenterTest;

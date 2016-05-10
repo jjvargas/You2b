@@ -1,5 +1,6 @@
 package com.chilliwifi.you2b.repos.exception;
 
+
 import retrofit.RetrofitError;
 
 public class ErrorMessageDeterminer {

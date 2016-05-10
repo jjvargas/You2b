@@ -23,7 +23,6 @@ public class SearchYouTubeRxPresenter extends MvpLceRxPresenter<SearchYouTubeVie
     public void getVideosRx(boolean pullToRefresh) {
         Observable<YoutubeVO> videosRx = youTubeApi.getVideosRx(20, searchTerm, Constants.DEVELOPER_KEY, "");
         subscribe(videosRx, pullToRefresh);
-
     }
 
 
