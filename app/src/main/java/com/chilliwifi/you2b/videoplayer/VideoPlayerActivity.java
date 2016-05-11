@@ -127,16 +127,15 @@ public class VideoPlayerActivity extends Activity {
         playlistManager = App.getPlaylistManager();
 
 
-
-        List<MediaItem> mediaItems = new LinkedList<>();
-        for (Samples.Sample sample : Samples.getVideoSamples()) {
-            MediaItem mediaItem = new MediaItem(sample, false);
-            mediaItems.add(mediaItem);
-        }
-
-
+//        List<MediaItem> mediaItems = new LinkedList<>();
+//        for (Samples.Sample sample : Samples.getVideoSamples()) {
+//            MediaItem mediaItem = new MediaItem(sample, false);
+//            mediaItems.add(mediaItem);
+//        }
+//        playlistManager.setParameters(mediaItems, selectedIndex);
+//
         playlistManager.setAllowedMediaType(BasePlaylistManager.AUDIO | BasePlaylistManager.VIDEO);
-        playlistManager.setParameters(mediaItems, selectedIndex);
+
         playlistManager.setId(PLAYLIST_ID);
     }
 
