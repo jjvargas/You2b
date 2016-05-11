@@ -36,7 +36,7 @@ task findbugs(type: FindBugs, dependsOn: assembleDebug) {
     effort = "max"
     reportLevel = "high"
     excludeFilter = new File("${project.rootDir}/config/quality/findbugs/findbugs-filter.xml")
-    classes = files("${project.rootDir}/samples/mars-android-wlc-radio/build/intermediates/classes")
+    classes = files("${project.rootDir}/app/build/intermediates/classes")
 
     source 'src'
     include '**/*.java'
