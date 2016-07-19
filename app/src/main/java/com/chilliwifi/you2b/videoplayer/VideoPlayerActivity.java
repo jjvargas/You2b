@@ -104,7 +104,11 @@ public class VideoPlayerActivity extends Activity {
      */
     protected void retrieveExtras() {
         Bundle extras = getIntent().getExtras();
-        videoId = extras.getString(EXTRA_VIDEO_ID, "");
+
+        if (extras != null) {
+            videoId = extras.getString(EXTRA_VIDEO_ID, "");
+        }
+
         selectedIndex = 0;
     }
 

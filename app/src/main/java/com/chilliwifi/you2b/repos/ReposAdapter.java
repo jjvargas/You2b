@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.chilliwifi.you2b.R;
 import com.chilliwifi.you2b.searchyou2b.model.Items;
 import com.chilliwifi.you2b.searchyou2b.model.YoutubeVO;
+import com.chilliwifi.you2b.videoplayer.AudioPlayerActivity;
 import com.chilliwifi.you2b.videoplayer.FullScreenVideoPlayerActivity;
 import com.chilliwifi.you2b.videoplayer.VideoPlayerActivity;
 import com.chilliwifi.you2b.videourl.VideoUrlApi;
@@ -71,7 +72,14 @@ public class ReposAdapter extends SupportAnnotatedAdapter implements ReposAdapte
       public void onClick(View view) {
 //        getVideoURl(repo.id.videoId,view.getContext());
 
-        Intent intent = new Intent(view.getContext(), FullScreenVideoPlayerActivity.class);
+//        Intent intent = new Intent(view.getContext(), FullScreenVideoPlayerActivity.class);
+//        Bundle mBundle = new Bundle();
+//        mBundle.putString(VideoPlayerActivity.EXTRA_VIDEO_ID, repo.id.videoId);
+//        intent.putExtras(mBundle);
+//        view.getContext().startActivity(intent);
+
+
+        Intent intent = new Intent(view.getContext(), AudioPlayerActivity.class);
         Bundle mBundle = new Bundle();
         mBundle.putString(VideoPlayerActivity.EXTRA_VIDEO_ID, repo.id.videoId);
         intent.putExtras(mBundle);

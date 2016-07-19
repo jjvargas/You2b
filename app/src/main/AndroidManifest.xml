@@ -30,7 +30,11 @@
         android:configChanges="orientation|keyboardHidden|screenSize"
         android:label="@string/title_activity_main">
     </activity>
-
+    <activity
+        android:name=".videoplayer.AudioPlayerActivity"
+        android:configChanges="orientation|keyboardHidden|screenSize"
+        android:label="@string/title_activity_main">
+    </activity>
 
 
     <service
