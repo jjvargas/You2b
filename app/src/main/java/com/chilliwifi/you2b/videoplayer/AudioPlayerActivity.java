@@ -2,7 +2,6 @@ package com.chilliwifi.you2b.videoplayer;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
@@ -16,21 +15,21 @@ import com.chilliwifi.you2b.R;
 import com.chilliwifi.you2b.SampleModule;
 import com.chilliwifi.you2b.searchyou2b.DaggerSearchYouTubeComponent;
 import com.chilliwifi.you2b.searchyou2b.SearchYouTubeComponent;
+import com.chilliwifi.you2b.videoplayer.data.MediaItem;
 import com.chilliwifi.you2b.videoplayer.data.Samples;
 import com.chilliwifi.you2b.videoplayer.manager.PlaylistManager;
-import com.chilliwifi.you2b.videoplayer.playlist.VideoApi;
 import com.chilliwifi.you2b.videourl.VideoUrlApi;
+import com.chilliwifi.you2b.videourl.model.Format;
 import com.chilliwifi.you2b.videourl.model.VideoUrl;
 import com.devbrackets.android.exomedia.util.TimeFormatUtil;
 import com.devbrackets.android.playlistcore.event.MediaProgress;
 import com.devbrackets.android.playlistcore.event.PlaylistItemChange;
 import com.devbrackets.android.playlistcore.listener.PlaylistListener;
 import com.devbrackets.android.playlistcore.listener.ProgressListener;
-import com.devbrackets.android.playlistcore.manager.IPlaylistItem;
 import com.devbrackets.android.playlistcore.service.PlaylistServiceCore;
 import com.squareup.picasso.Picasso;
-import com.chilliwifi.you2b.videoplayer.data.MediaItem;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,19 +37,19 @@ import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-
-import static com.chilliwifi.you2b.videoplayer.VideoPlayerActivity.EXTRA_VIDEO_ID;
 
 /**
  * An example activity to show how to implement and audio UI
  * that interacts with the {@link com.devbrackets.android.playlistcore.service.BasePlaylistService}
  * and {@link com.devbrackets.android.playlistcore.manager.BasePlaylistManager} classes.
  */
-public class AudioPlayerActivity extends AppCompatActivity implements PlaylistListener, ProgressListener {
+public class AudioPlayerActivity extends AppCompatActivity implements PlaylistListener<MediaItem>, ProgressListener {
     public static final String EXTRA_INDEX = "EXTRA_INDEX";
     public static final int PLAYLIST_ID = 4; //Arbitrary, for the example
+    public static final String MEDIA_ITEMS = "MEDIA_ITEMS";
 
     private ProgressBar loadingBar;
     private ImageView artworkView;
@@ -69,15 +68,15 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
     private PlaylistManager playlistManager;
     private int selectedIndex = 0;
 
+    private ArrayList<MediaItem> mediaItemsArrayList;
+    private TextView title;
+    private TextView subtitle;
+
     private Picasso picasso;
-
-
     protected String videoId;
-
     @Inject
     SearchYouTubeComponent searchYouTubeComponent;
     VideoUrlApi videoUrlApi;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,24 +85,13 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
 
         injectDependencies();
         retrieveExtras();
-
-        System.out.println("Javier videoid " + videoId);
-
         init();
-
-        getVideoURl(videoId);
-
     }
 
-
     protected void injectDependencies() {
-        searchYouTubeComponent =
-                DaggerSearchYouTubeComponent.builder().sampleModule(new SampleModule(getApplicationContext())).build();
+        searchYouTubeComponent = DaggerSearchYouTubeComponent.builder().sampleModule(new SampleModule(getApplicationContext())).build();
         searchYouTubeComponent.inject(this);
-
-
         videoUrlApi = searchYouTubeComponent.videoUrlApi();
-
     }
 
     @Override
@@ -125,7 +113,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
     }
 
     @Override
-    public boolean onPlaylistItemChanged(@Nullable IPlaylistItem currentItem, boolean hasNext, boolean hasPrevious) {
+    public boolean onPlaylistItemChanged(MediaItem currentItem, boolean hasNext, boolean hasPrevious) {
         shouldSetDuration = true;
 
         //Updates the button states
@@ -175,7 +163,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
 
         if (!userInteracting) {
             seekBar.setSecondaryProgress((int) (progress.getDuration() * progress.getBufferPercentFloat()));
-            seekBar.setProgress((int)progress.getPosition());
+            seekBar.setProgress((int) progress.getPosition());
             currentPositionView.setText(TimeFormatUtil.formatMs(progress.getPosition()));
         }
 
@@ -208,8 +196,12 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
      */
     private void retrieveExtras() {
         Bundle extras = getIntent().getExtras();
-        videoId = extras.getString(EXTRA_VIDEO_ID, "");
-        selectedIndex = 0;
+
+        System.out.println("Javier debug finding extras " + extras);
+        if (extras != null) {
+            selectedIndex = extras.getInt(EXTRA_INDEX, 0);
+            mediaItemsArrayList = extras.getParcelableArrayList(MEDIA_ITEMS);
+        }
     }
 
     /**
@@ -222,8 +214,12 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
 
         picasso = Picasso.with(getApplicationContext());
 
+        System.out.println("Javier debug PLAYLIST_ID " + PLAYLIST_ID);
+        System.out.println("Javier debug getCurrentPlaybackState " + App.getPlaylistManager().getCurrentPlaybackState());
+        System.out.println("Javier debug getCurrent position at init!  " + App.getPlaylistManager().getCurrentPosition());
+
         boolean generatedPlaylist = setupPlaylistManager();
-//        startPlayback(generatedPlaylist);
+        startPlayback(generatedPlaylist);
     }
 
 
@@ -256,7 +252,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
     public void loadCompleted() {
         playPauseButton.setVisibility(View.VISIBLE);
         previousButton.setVisibility(View.VISIBLE);
-        nextButton.setVisibility(View.VISIBLE );
+        nextButton.setVisibility(View.VISIBLE);
 
         loadingBar.setVisibility(View.INVISIBLE);
     }
@@ -268,7 +264,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
     public void restartLoading() {
         playPauseButton.setVisibility(View.INVISIBLE);
         previousButton.setVisibility(View.INVISIBLE);
-        nextButton.setVisibility(View.INVISIBLE );
+        nextButton.setVisibility(View.INVISIBLE);
 
         loadingBar.setVisibility(View.VISIBLE);
     }
@@ -279,7 +275,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
      * @param duration The duration of the media item in milliseconds
      */
     private void setDuration(long duration) {
-        seekBar.setMax((int)duration);
+        seekBar.setMax((int) duration);
         durationView.setText(TimeFormatUtil.formatMs(duration));
     }
 
@@ -299,11 +295,14 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
 
 //        List<MediaItem> mediaItems = new LinkedList<>();
 //        for (Samples.Sample sample : Samples.getAudioSamples()) {
+//
 //            MediaItem mediaItem = new MediaItem(sample, true);
+//            System.out.println("Javier media item adding " +  sample.getTitle());
 //            mediaItems.add(mediaItem);
+//
 //        }
 
-//        playlistManager.setParameters(mediaItems, selectedIndex);
+        playlistManager.setParameters(mediaItemsArrayList, selectedIndex);
         playlistManager.setId(PLAYLIST_ID);
 
         return true;
@@ -314,17 +313,20 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
      * xml layout file.
      */
     private void retrieveViews() {
-        loadingBar = (ProgressBar)findViewById(R.id.audio_player_loading);
-        artworkView = (ImageView)findViewById(R.id.audio_player_image);
+        loadingBar = (ProgressBar) findViewById(R.id.audio_player_loading);
+        artworkView = (ImageView) findViewById(R.id.audio_player_image);
 
-        currentPositionView = (TextView)findViewById(R.id.audio_player_position);
-        durationView = (TextView)findViewById(R.id.audio_player_duration);
+        currentPositionView = (TextView) findViewById(R.id.audio_player_position);
+        durationView = (TextView) findViewById(R.id.audio_player_duration);
 
-        seekBar = (SeekBar)findViewById(R.id.audio_player_seek);
+        seekBar = (SeekBar) findViewById(R.id.audio_player_seek);
 
-        previousButton = (ImageButton)findViewById(R.id.audio_player_previous);
-        playPauseButton = (ImageButton)findViewById(R.id.audio_player_play_pause);
-        nextButton = (ImageButton)findViewById(R.id.audio_player_next);
+        previousButton = (ImageButton) findViewById(R.id.audio_player_previous);
+        playPauseButton = (ImageButton) findViewById(R.id.audio_player_play_pause);
+        nextButton = (ImageButton) findViewById(R.id.audio_player_next);
+
+        title = (TextView) findViewById(R.id.title);
+        subtitle = (TextView) findViewById(R.id.subtitle);
     }
 
     /**
@@ -352,7 +354,12 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playlistManager.invokeNext();
+//                playlistManager.invokeNext();
+                System.out.println("Javier current position " + playlistManager.getCurrentPosition());
+                playlistManager.setCurrentPosition(playlistManager.getCurrentPosition() + 1);
+                System.out.println("Javier  new current position " + playlistManager.getCurrentPosition());
+
+                getVideoURl(playlistManager.getCurrentItem().getVideoId(), true);
             }
         });
     }
@@ -364,10 +371,15 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
      */
     private void startPlayback(boolean forceStart) {
         //If we are changing audio files, or we haven't played before then start the playback
-        if (forceStart || playlistManager.getCurrentPosition() != selectedIndex) {
-            playlistManager.setCurrentPosition(selectedIndex);
-            playlistManager.play(0, false);
+
+        //bad hack, change Javier
+        if (!playlistManager.getCurrentPlaybackState().equals(PlaylistServiceCore.PlaybackState.PLAYING)) {
+            if (forceStart || playlistManager.getCurrentPosition() != selectedIndex) {
+                playlistManager.setCurrentPosition(selectedIndex);
+                getVideoURl(playlistManager.getCurrentItem().getVideoId(), false);
+            }
         }
+
     }
 
     /**
@@ -404,14 +416,20 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
         }
     }
 
-    private void getVideoURl(final String videoId) {
+    private void getVideoURl(final String videoId, final boolean next) {
+        if (videoId == null) {
+            throw new IllegalArgumentException("null videoid");
+        }
+
+        System.out.println("Javier getVideoURL " + videoId + " NEXT " + next);
+        loadingBar.setVisibility(View.VISIBLE);
         Observable<VideoUrl> videoUrl = videoUrlApi.getVideoUrl(videoId);
         Observable<VideoUrl> videoUrlObservable = videoUrl.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+
         videoUrlObservable.subscribe(new Subscriber<VideoUrl>() {
             @Override
             public void onCompleted() {
                 System.out.println("Javier YoutubeVO completed");
-
             }
 
             @Override
@@ -421,29 +439,42 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
 
             @Override
             public void onNext(VideoUrl videoUrl) {
-                System.out.println("Javier YoutubeVO url " + videoUrl.getInfo().getUrl());
-                Samples.Sample sample = new Samples.Sample(videoUrl.getInfo().getTitle(), videoUrl.getInfo().getUrl());
-                List<MediaItem> mediaItems = new LinkedList<>();
-                MediaItem mediaItem = new MediaItem(sample, true);
-                mediaItems.add(mediaItem);
-                playlistManager.setParameters(mediaItems, 0);
-                play();
+                List<Format> formats = videoUrl.getInfo().getFormats();
+                Format format = formats.get(0);
+                if (format.getFormat().contains("audio only")) {
+                    String audioUrl = format.getUrl();
+                    System.out.println("Javier YoutubeVO url " + audioUrl);
+                    System.out.println("Javier  mediaItems " + mediaItemsArrayList);
+                    Samples.Sample sample = new Samples.Sample(videoUrl.getInfo().getTitle(), audioUrl, videoUrl.getInfo().getThumbnails().get(0).getUrl());
+
+                    title.setText(videoUrl.getInfo().getTitle());
+                    subtitle.setText(format.getFormat());
+
+                    int position = playlistManager.getCurrentPosition();
+
+
+                    System.out.println("Javier playing videoId  " + videoId);
+                    mediaItemsArrayList.set(position, new MediaItem(sample, true, videoId));
+
+
+
+                    playlistManager.setParameters(mediaItemsArrayList, next?position-1:position);
+
+                    System.out.println("Javier playing position  " + playlistManager.getCurrentPosition());
+
+                    for (MediaItem mediaItem : mediaItemsArrayList) {
+                        System.out.println("Javier mediaItem " + mediaItem.getTitle() + " url " + mediaItem.getMediaUrl());
+                    }
+
+
+                    if (!next) {
+                        playlistManager.play(0, false);
+                    } else {
+                        System.out.println("Javier invoke next");
+                        playlistManager.invokeNext();
+                    }
+                }
             }
         });
-    }
-
-    private void play() {
-
-
-        playlistManager.setCurrentPosition(0);
-
-
-        String mediaUrl = playlistManager.getCurrentItem().getMediaUrl();
-        System.out.println("Javier audio mediaurl " + mediaUrl);
-
-        playlistManager.play(0, false);
-
-
-
     }
 }

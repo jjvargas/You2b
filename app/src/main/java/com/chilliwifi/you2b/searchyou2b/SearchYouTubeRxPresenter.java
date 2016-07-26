@@ -13,7 +13,7 @@ public class SearchYouTubeRxPresenter extends MvpLceRxPresenter<SearchYouTubeVie
 
     YouTubeApi youTubeApi;
 
-    public String searchTerm = "Muse";
+    public String searchTerm = "Radiohead";
 
     @Inject
     public SearchYouTubeRxPresenter(YouTubeApi api) {

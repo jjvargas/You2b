@@ -1,6 +1,8 @@
 
 package com.chilliwifi.you2b.videoplayer.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -9,8 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Samples {
-    @NonNull
-    private static final List<Sample> audioSamples;
+//    @NonNull
+//    private static final List<Sample> audioSamples;
     @NonNull
     private static final List<Sample> videoSamples;
 
@@ -18,13 +20,13 @@ public class Samples {
         String audioImage = "https://ia902708.us.archive.org/3/items/count_monte_cristo_0711_librivox/Count_Monte_Cristo_1110.jpg?cnt=0";
 
         //Audio items
-        audioSamples = new LinkedList<>();
-        audioSamples.add(new Sample("Marseilles -- The Arrival", "https://archive.org/download/count_monte_cristo_0711_librivox/count_of_monte_cristo_001_dumas.mp3", audioImage));
-        audioSamples.add(new Sample("Father and Son", "https://archive.org/download/count_monte_cristo_0711_librivox/count_of_monte_cristo_002_dumas.mp3", audioImage));
-        audioSamples.add(new Sample("The Catalans", "https://archive.org/download/count_monte_cristo_0711_librivox/count_of_monte_cristo_003_dumas.mp3", audioImage));
-        audioSamples.add(new Sample("Conspiracy", "https://archive.org/download/count_monte_cristo_0711_librivox/count_of_monte_cristo_004_dumas.mp3", audioImage));
-        audioSamples.add(new Sample("Saicot Audio","https://r11---sn-vgqs7n7r.googlevideo.com/videoplayback?id=8a3986bab68243ac&itag=140&source=youtube&requiressl=yes&initcwndbps=6012500&mm=31&mn=sn-vgqs7n7r&pl=27&mv=m&ms=au&ratebypass=yes&mime=audio/mp4&gir=yes&clen=30550411&lmt=1456490825061680&dur=1923.494&sver=3&signature=9BDD2E7A1441F58F99CA8BB6768BC65094571C91.16AD1F68B8A486169D3A252B6AF39A9F77918529&key=dg_yt0&upn=Lo8q7TdxS-Y&mt=1462295011&fexp=9406012,9408211,9416126,9416891,9422596,9423749,9424337,9428398,9431012,9432076,9432683,9432955,9433043,9433096,9433946,9434282,9434290,9434611,9434767,9435445&ip=107.178.194.118&ipbits=0&expire=1462316680&sparams=ip,ipbits,expire,id,itag,source,requiressl,initcwndbps,mm,mn,pl,mv,ms,ratebypass,mime,gir,clen,lmt,dur", audioImage));
-
+//        audioSamples = new LinkedList<>();
+//        audioSamples.add(new Sample("Beach boys I get around", "http://132.248.192.201/Mi_musica/Rock_80s/Varias/beach%20boys%20-%20i%20get%20around.mp3", "https://upload.wikimedia.org/wikipedia/en/e/e2/Beach_Boys_-_I_Get_Around.jpg"));
+//        audioSamples.add(new Sample("Eric Clapton layla", "http://132.248.192.201/Mi_musica/Rock_80s/Varias/eric%20clapton%20-%20layla.mp3", "https://upload.wikimedia.org/wikipedia/en/thumb/1/10/Layla_(Acoustic)_Cover.jpg/220px-Layla_(Acoustic)_Cover.jpg"));
+//        audioSamples.add(new Sample("INXS", "http://132.248.192.201/Mi_musica/Rock_80s/Varias/inxs%20-%20need%20you%20tonight.mp3", "http://cps-static.rovicorp.com/3/JPG_500/MI0001/732/MI0001732931.jpg"));
+//        audioSamples.add(new Sample("Radiohead Karma Police", "http://132.248.192.201/Mi_musica/Rock_80s/Varias/radiohead%20-%20o.k.%20computer%20-%2006%20-%20karma%20police.mp3", "https://upload.wikimedia.org/wikipedia/en/a/a1/Radiohead.okcomputer.albumart.jpg"));
+//        audioSamples.add(new Sample("Oasis Wonderwall","http://132.248.192.201/Mi_musica/Rock_80s/Varias/oasis%20-%20wonderwall.mp3", "https://upload.wikimedia.org/wikipedia/en/1/17/Wonderwall_cover.jpg"));
+//
 
 
         //Video items
@@ -48,6 +50,14 @@ public class Samples {
 
     @NonNull
     public static List<Sample> getAudioSamples() {
+
+        LinkedList audioSamples = new LinkedList<>();
+        audioSamples.add(new Sample("Beach boys I get around", "http://132.248.192.201/Mi_musica/Rock_80s/Varias/beach%20boys%20-%20i%20get%20around.mp3", "https://upload.wikimedia.org/wikipedia/en/e/e2/Beach_Boys_-_I_Get_Around.jpg"));
+        audioSamples.add(new Sample("Eric Clapton layla", "http://132.248.192.201/Mi_musica/Rock_80s/Varias/eric%20clapton%20-%20layla.mp3", "https://upload.wikimedia.org/wikipedia/en/thumb/1/10/Layla_(Acoustic)_Cover.jpg/220px-Layla_(Acoustic)_Cover.jpg"));
+        audioSamples.add(new Sample("INXS", "http://132.248.192.201/Mi_musica/Rock_80s/Varias/inxs%20-%20need%20you%20tonight.mp3", "http://cps-static.rovicorp.com/3/JPG_500/MI0001/732/MI0001732931.jpg"));
+        audioSamples.add(new Sample("Radiohead Karma Police", "http://132.248.192.201/Mi_musica/Rock_80s/Varias/radiohead%20-%20o.k.%20computer%20-%2006%20-%20karma%20police.mp3", "https://upload.wikimedia.org/wikipedia/en/a/a1/Radiohead.okcomputer.albumart.jpg"));
+        audioSamples.add(new Sample("Oasis Wonderwall","http://132.248.192.201/Mi_musica/Rock_80s/Varias/oasis%20-%20wonderwall.mp3", "https://upload.wikimedia.org/wikipedia/en/1/17/Wonderwall_cover.jpg"));
+
         return audioSamples;
     }
 
@@ -60,7 +70,7 @@ public class Samples {
      * A container for the information associated with a
      * sample media item.
      */
-    public static class Sample {
+    public static class Sample implements Parcelable {
         @NonNull
         private String title;
         @NonNull
@@ -92,5 +102,35 @@ public class Samples {
         public String getArtworkUrl() {
             return artworkUrl;
         }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(this.title);
+            dest.writeString(this.mediaUrl);
+            dest.writeString(this.artworkUrl);
+        }
+
+        protected Sample(Parcel in) {
+            this.title = in.readString();
+            this.mediaUrl = in.readString();
+            this.artworkUrl = in.readString();
+        }
+
+        public static final Parcelable.Creator<Sample> CREATOR = new Parcelable.Creator<Sample>() {
+            @Override
+            public Sample createFromParcel(Parcel source) {
+                return new Sample(source);
+            }
+
+            @Override
+            public Sample[] newArray(int size) {
+                return new Sample[size];
+            }
+        };
     }
 }

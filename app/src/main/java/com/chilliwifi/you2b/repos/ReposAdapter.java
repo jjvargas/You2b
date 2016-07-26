@@ -11,13 +11,17 @@ import com.chilliwifi.you2b.R;
 import com.chilliwifi.you2b.searchyou2b.model.Items;
 import com.chilliwifi.you2b.searchyou2b.model.YoutubeVO;
 import com.chilliwifi.you2b.videoplayer.AudioPlayerActivity;
-import com.chilliwifi.you2b.videoplayer.FullScreenVideoPlayerActivity;
-import com.chilliwifi.you2b.videoplayer.VideoPlayerActivity;
+import com.chilliwifi.you2b.videoplayer.data.MediaItem;
+import com.chilliwifi.you2b.videoplayer.data.Samples;
 import com.chilliwifi.you2b.videourl.VideoUrlApi;
 import com.hannesdorfmann.annotatedadapter.annotation.ViewField;
 import com.hannesdorfmann.annotatedadapter.annotation.ViewType;
 import com.hannesdorfmann.annotatedadapter.support.recyclerview.SupportAnnotatedAdapter;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -56,7 +60,7 @@ public class ReposAdapter extends SupportAnnotatedAdapter implements ReposAdapte
     this.repos = repos;
   }
 
-  @Override public void bindViewHolder(final ReposAdapterHolders.RepoViewHolder vh, int position) {
+  @Override public void bindViewHolder(final ReposAdapterHolders.RepoViewHolder vh, final int position) {
     final Items repo = repos.items.get(position);
 
     vh.name.setText(repo.snippet.title);
@@ -70,20 +74,55 @@ public class ReposAdapter extends SupportAnnotatedAdapter implements ReposAdapte
     vh.itemView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-//        getVideoURl(repo.id.videoId,view.getContext());
 
-//        Intent intent = new Intent(view.getContext(), FullScreenVideoPlayerActivity.class);
-//        Bundle mBundle = new Bundle();
-//        mBundle.putString(VideoPlayerActivity.EXTRA_VIDEO_ID, repo.id.videoId);
-//        intent.putExtras(mBundle);
-//        view.getContext().startActivity(intent);
-
+        //change to linkedlist
+//        ArrayList<MediaItem> mediaItems = new ArrayList<MediaItem>();
+//
+//        for (Items item  : repos.items) {
+//          Samples.Sample sample =  new Samples.Sample(item.snippet.title,null,item.snippet.thumbnails.medium.url);
+//          MediaItem mediaItem = new MediaItem(sample, true,item.id.videoId);
+//          mediaItems.add(mediaItem);
+//        }
 
         Intent intent = new Intent(view.getContext(), AudioPlayerActivity.class);
+//        Bundle mBundle = new Bundle();
+//        mBundle.putString(AudioPlayerActivity.EXTRA_INDEX, repo.id.videoId);
+//        mBundle.putParcelableArrayList(AudioPlayerActivity.MEDIA_ITEMS, mediaItems);
+//        intent.putExtras(mBundle);
+
+        //////////////////////////////
+
+        ArrayList<MediaItem> mediaItems = new ArrayList<>();
+//        for (Samples.Sample sample : Samples.getAudioSamples()) {
+//
+//          MediaItem mediaItem = new MediaItem(sample, true);
+//          System.out.println("Javier media item adding " +  sample.getTitle());
+//          mediaItems.add(mediaItem);
+//
+//        }
+
+       for (Items item  : repos.items) {
+          Samples.Sample sample =  new Samples.Sample(item.snippet.title,null,item.snippet.thumbnails.medium.url);
+          MediaItem mediaItem = new MediaItem(sample, true,item.id.videoId);
+          mediaItems.add(mediaItem);
+        }
+
+
         Bundle mBundle = new Bundle();
-        mBundle.putString(VideoPlayerActivity.EXTRA_VIDEO_ID, repo.id.videoId);
+        mBundle.putParcelableArrayList(AudioPlayerActivity.MEDIA_ITEMS, mediaItems);
+          mBundle.putInt(AudioPlayerActivity.EXTRA_INDEX, position);
         intent.putExtras(mBundle);
+
         view.getContext().startActivity(intent);
+
+
+
+
+
+
+
+
+
 
       }
     });

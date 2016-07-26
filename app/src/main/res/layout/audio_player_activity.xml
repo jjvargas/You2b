@@ -26,6 +26,22 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/title" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/subtitle" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/audio_player_controls_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

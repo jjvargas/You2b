@@ -7,33 +7,33 @@ import com.facebook.stetho.Stetho;
 
 public class App extends Application {
 
-  private static App application;
-  private static PlaylistManager playlistManager;
+    private static App application;
+    private static PlaylistManager playlistManager;
 
-  @Override
-  public void onCreate() {
-    super.onCreate();
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
-    application = this;
-    playlistManager = new PlaylistManager();
-    Stetho.initializeWithDefaults(this);
-  }
+        application = this;
+        playlistManager = new PlaylistManager();
+        Stetho.initializeWithDefaults(this);
+    }
 
-  @Override
-  public void onTerminate() {
-    super.onTerminate();
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
 
-    System.out.println("Javier on terminate");
+        System.out.println("Javier on terminate");
 
-    application = null;
-    playlistManager = null;
-  }
+        application = null;
+        playlistManager = null;
+    }
 
-  public static PlaylistManager getPlaylistManager() {
-    return playlistManager;
-  }
+    public static PlaylistManager getPlaylistManager() {
+        return playlistManager;
+    }
 
-  public static App getApplication() {
-    return application;
-  }
+    public static App getApplication() {
+        return application;
+    }
 }
