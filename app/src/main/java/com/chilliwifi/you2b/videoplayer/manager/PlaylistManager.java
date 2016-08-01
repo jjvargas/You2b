@@ -10,6 +10,8 @@ import com.chilliwifi.you2b.videoplayer.service.MediaService;
 import com.devbrackets.android.playlistcore.manager.BasePlaylistManager;
 import com.devbrackets.android.playlistcore.manager.ListPlaylistManager;
 
+import java.util.List;
+
 /**
  * A PlaylistManager that extends the {@link BasePlaylistManager} for use with the
  * {@link MediaService} which extends {@link com.devbrackets.android.playlistcore.service.BasePlaylistService}.
@@ -27,4 +29,9 @@ public class PlaylistManager extends ListPlaylistManager<MediaItem> {
     protected Class<? extends Service> getMediaServiceClass() {
         return MediaService.class;
     }
+
+    public List<MediaItem> getItems(){
+        return super.items;
+    }
+
 }

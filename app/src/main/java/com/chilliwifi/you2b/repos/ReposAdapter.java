@@ -111,6 +111,7 @@ public class ReposAdapter extends SupportAnnotatedAdapter implements ReposAdapte
         Bundle mBundle = new Bundle();
         mBundle.putParcelableArrayList(AudioPlayerActivity.MEDIA_ITEMS, mediaItems);
           mBundle.putInt(AudioPlayerActivity.EXTRA_INDEX, position);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtras(mBundle);
 
         view.getContext().startActivity(intent);

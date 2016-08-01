@@ -23,6 +23,7 @@
     <activity
         android:name=".videoplayer.AudioPlayerActivity"
         android:configChanges="orientation|keyboardHidden|screenSize"
+        android:launchMode="singleInstance"
         android:label="@string/title_activity_main">
     </activity>
 

@@ -73,7 +73,6 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
     private TextView subtitle;
 
     private Picasso picasso;
-    protected String videoId;
     @Inject
     SearchYouTubeComponent searchYouTubeComponent;
     VideoUrlApi videoUrlApi;
@@ -82,6 +81,8 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.audio_player_activity);
+
+        System.out.println("Javier debug App.getPlaylistManager  onCreate " + App.getPlaylistManager().getItemCount());
 
         injectDependencies();
         retrieveExtras();
@@ -122,6 +123,8 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
 
         //Loads the new image
         picasso.load(currentItem.getArtworkUrl()).into(artworkView);
+
+        updateTitles();
 
         return true;
     }
@@ -215,6 +218,9 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
         picasso = Picasso.with(getApplicationContext());
 
         System.out.println("Javier debug PLAYLIST_ID " + PLAYLIST_ID);
+        System.out.println("Javier debug mediaItemsArrayList" + mediaItemsArrayList);
+        System.out.println("Javier debug App.getPlaylistManager " + App.getPlaylistManager().getItemCount());
+        System.out.println("Javier debug App.getItems " + App.getPlaylistManager().getItems());
         System.out.println("Javier debug getCurrentPlaybackState " + App.getPlaylistManager().getCurrentPlaybackState());
         System.out.println("Javier debug getCurrent position at init!  " + App.getPlaylistManager().getCurrentPosition());
 
@@ -289,21 +295,26 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
         playlistManager = App.getPlaylistManager();
 
         //There is nothing to do if the currently playing values are the same
-        if (playlistManager.getId() == PLAYLIST_ID) {
-            return false;
-        }
-
-//        List<MediaItem> mediaItems = new LinkedList<>();
-//        for (Samples.Sample sample : Samples.getAudioSamples()) {
-//
-//            MediaItem mediaItem = new MediaItem(sample, true);
-//            System.out.println("Javier media item adding " +  sample.getTitle());
-//            mediaItems.add(mediaItem);
-//
+//        if (playlistManager.getId() == PLAYLIST_ID) {
+//            return false;
 //        }
 
-        playlistManager.setParameters(mediaItemsArrayList, selectedIndex);
-        playlistManager.setId(PLAYLIST_ID);
+
+        if (mediaItemsArrayList == null) {
+            if(playlistManager.getItems()==null)
+            {
+                //nothing to play!!!
+                finish();
+                return false;
+            }
+
+        }
+
+
+
+        System.out.println("Javier debug2 mediaItemsArrayList " + mediaItemsArrayList);
+        System.out.println("Javier debug2 selectedIndex" + selectedIndex);
+
 
         return true;
     }
@@ -354,12 +365,12 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                playlistManager.invokeNext();
-                System.out.println("Javier current position " + playlistManager.getCurrentPosition());
-                playlistManager.setCurrentPosition(playlistManager.getCurrentPosition() + 1);
-                System.out.println("Javier  new current position " + playlistManager.getCurrentPosition());
+                playlistManager.invokeNext();
 
-                getVideoURl(playlistManager.getCurrentItem().getVideoId(), true);
+//                System.out.println("Javier current position " + playlistManager.getCurrentPosition());
+//                playlistManager.setCurrentPosition(playlistManager.getCurrentPosition() + 1);
+//                System.out.println("Javier  new current position " + playlistManager.getCurrentPosition());
+//                getVideoURl(playlistManager.getCurrentItem().getVideoId(), true);
             }
         });
     }
@@ -373,12 +384,27 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
         //If we are changing audio files, or we haven't played before then start the playback
 
         //bad hack, change Javier
-        if (!playlistManager.getCurrentPlaybackState().equals(PlaylistServiceCore.PlaybackState.PLAYING)) {
-            if (forceStart || playlistManager.getCurrentPosition() != selectedIndex) {
-                playlistManager.setCurrentPosition(selectedIndex);
-                getVideoURl(playlistManager.getCurrentItem().getVideoId(), false);
-            }
+        if (!(mediaItemsArrayList == null)) {
+//            if (forceStart || playlistManager.getCurrentPosition() != selectedIndex) {
+            playlistManager.setParameters(mediaItemsArrayList, selectedIndex);
+            playlistManager.play(0, false);
+//            getVideoURl(playlistManager.getCurrentItem().getVideoId(), false);
+//            }
+        } else {
+
+            playlistManager = App.getPlaylistManager();
+            mediaItemsArrayList = (ArrayList<MediaItem>) App.getPlaylistManager().getItems();
+            selectedIndex = App.getPlaylistManager().getCurrentPosition();
+            playlistManager.setParameters(mediaItemsArrayList, selectedIndex);
+            playlistManager.setId(PLAYLIST_ID);
+
+            System.out.println("Javier tocando " + playlistManager.getCurrentItem() );
+            System.out.println("Javier tocando2  " + mediaItemsArrayList);
         }
+
+        updateTitles();
+
+
 
     }
 
@@ -447,9 +473,6 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
                     System.out.println("Javier  mediaItems " + mediaItemsArrayList);
                     Samples.Sample sample = new Samples.Sample(videoUrl.getInfo().getTitle(), audioUrl, videoUrl.getInfo().getThumbnails().get(0).getUrl());
 
-                    title.setText(videoUrl.getInfo().getTitle());
-                    subtitle.setText(format.getFormat());
-
                     int position = playlistManager.getCurrentPosition();
 
 
@@ -457,8 +480,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
                     mediaItemsArrayList.set(position, new MediaItem(sample, true, videoId));
 
 
-
-                    playlistManager.setParameters(mediaItemsArrayList, next?position-1:position);
+                    playlistManager.setParameters(mediaItemsArrayList, next ? position - 1 : position);
 
                     System.out.println("Javier playing position  " + playlistManager.getCurrentPosition());
 
@@ -477,4 +499,17 @@ public class AudioPlayerActivity extends AppCompatActivity implements PlaylistLi
             }
         });
     }
+
+    private void updateTitles() {
+        if (playlistManager.getCurrentItem() != null) {
+            title.setText(playlistManager.getCurrentItem().getTitle());
+            subtitle.setText(playlistManager.getCurrentItem().getArtist());
+        }
+
+    }
+
+
+
+
+
 }

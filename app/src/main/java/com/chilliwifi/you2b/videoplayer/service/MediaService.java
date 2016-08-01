@@ -5,16 +5,25 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.View;
 
 import com.chilliwifi.you2b.App;
+import com.chilliwifi.you2b.MainActivity;
 import com.chilliwifi.you2b.R;
+import com.chilliwifi.you2b.SampleModule;
+import com.chilliwifi.you2b.searchyou2b.DaggerSearchYouTubeComponent;
+import com.chilliwifi.you2b.searchyou2b.SearchYouTubeComponent;
 import com.chilliwifi.you2b.videoplayer.AudioPlayerActivity;
 import com.chilliwifi.you2b.videoplayer.data.MediaItem;
 import com.chilliwifi.you2b.videoplayer.manager.PlaylistManager;
 import com.chilliwifi.you2b.videoplayer.playlist.AudioApi;
 import com.chilliwifi.you2b.videoplayer.playlist.VideoApi;
+import com.chilliwifi.you2b.videourl.VideoUrlApi;
+import com.chilliwifi.you2b.videourl.model.Format;
+import com.chilliwifi.you2b.videourl.model.VideoUrl;
 import com.devbrackets.android.exomedia.EMAudioPlayer;
 import com.devbrackets.android.exomedia.ui.widget.EMVideoView;
 import com.devbrackets.android.exomedia.ui.widget.VideoControls;
@@ -22,6 +31,16 @@ import com.devbrackets.android.playlistcore.api.AudioPlayerApi;
 import com.devbrackets.android.playlistcore.service.BasePlaylistService;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import javax.inject.Inject;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * A simple service that extends {@link BasePlaylistService} in order to provide
@@ -42,10 +61,23 @@ public class MediaService extends BasePlaylistService<MediaItem, PlaylistManager
     //Picasso is an image loading library (NOTE: google now recommends using glide for image loading)
     private Picasso picasso;
 
+    @Inject
+    SearchYouTubeComponent searchYouTubeComponent;
+    VideoUrlApi videoUrlApi;
+
+
     @Override
     public void onCreate() {
         super.onCreate();
         picasso = Picasso.with(getApplicationContext());
+
+        injectDependencies();
+    }
+
+    protected void injectDependencies() {
+        searchYouTubeComponent = DaggerSearchYouTubeComponent.builder().sampleModule(new SampleModule(getApplicationContext())).build();
+        searchYouTubeComponent.inject(this);
+        videoUrlApi = searchYouTubeComponent.videoUrlApi();
     }
 
     @Override
@@ -79,7 +111,8 @@ public class MediaService extends BasePlaylistService<MediaItem, PlaylistManager
     @NonNull
     @Override
     protected PendingIntent getNotificationClickPendingIntent() {
-        Intent intent = new Intent(getApplicationContext(), AudioPlayerActivity.class);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return PendingIntent.getActivity(getApplicationContext(), FOREGROUND_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
@@ -225,5 +258,91 @@ public class MediaService extends BasePlaylistService<MediaItem, PlaylistManager
         public void onPrepareLoad(Drawable placeHolderDrawable) {
             //Purposefully left blank
         }
+    }
+
+    @Override
+    protected boolean playAudioItem() {
+        stopVideoPlayback();
+        initializeAudioPlayer();
+        requestAudioFocus();
+
+        mediaProgressPoll.update(audioPlayer);
+        mediaProgressPoll.reset();
+
+        final boolean isItemDownloaded = isDownloaded(currentPlaylistItem);
+        //noinspection ConstantConditions - currentPlaylistItem and the audioPlayer are not null at this point
+
+
+
+        final CountDownLatch startSignal = new CountDownLatch(1);
+
+
+
+        System.out.println("Javier videoUrlApi " + videoUrlApi);
+
+        final Uri[] trackUri = new Uri[1];
+
+        Observable<VideoUrl> videoUrl = videoUrlApi.getVideoUrl(currentPlaylistItem.getVideoId());
+        Observable<VideoUrl> videoUrlObservable = videoUrl.subscribeOn(Schedulers.io());
+        //        .observeOn(AndroidSchedulers.mainThread());
+
+        videoUrlObservable.subscribe(new Subscriber<VideoUrl>() {
+            @Override
+            public void onCompleted() {
+                System.out.println("Javier YoutubeVO completed");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                System.out.println("Javier YoutubeVO error " + e.toString());
+                startSignal.countDown();
+            }
+
+            @Override
+            public void onNext(VideoUrl videoUrl) {
+                List<Format> formats = videoUrl.getInfo().getFormats();
+                Format format = formats.get(0);
+                if (format.getFormat().contains("audio only")) {
+                    String audioUrl = format.getUrl();
+                    System.out.println("Javier YoutubeVO url " + audioUrl);
+                    trackUri[0] = Uri.parse(isItemDownloaded ? currentPlaylistItem.getDownloadedMediaUri() : audioUrl);
+                    startSignal.countDown();
+                }
+            }
+        });
+
+        try {
+            startSignal.await();
+        } catch (InterruptedException e) {
+            // ignore
+        }
+
+        if (trackUri[0] == null) {
+            return false;
+        }
+
+        System.out.println("Javier afterLatch");
+//         trackUri = Uri.parse(isItemDownloaded ? currentPlaylistItem.getDownloadedMediaUri() : currentPlaylistItem.getMediaUrl());
+
+        audioPlayer.setDataSource(this, trackUri[0]);
+
+        setPlaybackState(PlaybackState.PREPARING);
+        setupAsForeground();
+
+        audioPlayer.prepareAsync();
+
+        // If we are streaming from the internet, we want to hold a Wifi lock, which prevents
+        // the Wifi radio from going to sleep while the song is playing. If, on the other hand,
+        // we are NOT streaming, we want to release the lock.
+        updateWiFiLock(!isItemDownloaded);
+        return true;
+    }
+
+    private void getTrackUrl(final String videoId) {
+        if (videoId == null) {
+            throw new IllegalArgumentException("null trackId");
+        }
+
+
     }
 }
