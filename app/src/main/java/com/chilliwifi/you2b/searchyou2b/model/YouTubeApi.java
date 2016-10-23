@@ -1,5 +1,7 @@
 package com.chilliwifi.you2b.searchyou2b.model;
 
+import com.chilliwifi.you2b.searchyou2b.playlists.model.Playlists;
+
 import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Query;
@@ -18,5 +20,9 @@ public interface YouTubeApi {
 
     @GET("/api/info")
     Observable<YoutubeVO> getVideoUrl(@Query("url") String videoId);
+
+    @GET("/playlistItems?part=snippet&type=video")
+    Observable<Playlists> getPlaylistItems(@Query("maxResults") int maxResult, @Query("playlistId") String text, @Query
+            ("key") String api_key);
 
 }

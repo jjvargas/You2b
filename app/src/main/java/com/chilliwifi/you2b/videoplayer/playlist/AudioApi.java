@@ -7,7 +7,9 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 
 import com.devbrackets.android.exomedia.EMAudioPlayer;
+import com.devbrackets.android.exomedia.core.builder.RenderBuilder;
 import com.devbrackets.android.playlistcore.api.AudioPlayerApi;
+import com.squareup.picasso.OkHttpDownloader;
 
 public class AudioApi extends BaseMediaApi implements AudioPlayerApi {
     private EMAudioPlayer audioPlayer;
@@ -76,6 +78,11 @@ public class AudioApi extends BaseMediaApi implements AudioPlayerApi {
     public void setDataSource(@NonNull Context context, @NonNull Uri uri) {
         audioPlayer.setDataSource(context, uri);
     }
+
+//    public void setDataSource(@NonNull Context context, @NonNull Uri uri, @NonNull RenderBuilder renderBuilder) {
+//        audioPlayer.setDataSource(context, uri,new RenderBuilder());
+//
+//    }
 
     @Override
     public void prepareAsync() {

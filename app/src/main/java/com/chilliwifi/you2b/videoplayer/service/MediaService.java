@@ -270,7 +270,7 @@ public class MediaService extends BasePlaylistService<MediaItem, PlaylistManager
         mediaProgressPoll.reset();
 
         final boolean isItemDownloaded = isDownloaded(currentPlaylistItem);
-        //noinspection ConstantConditions - currentPlaylistItem and the audioPlayer are not null at this point
+        //noinspection ConstantC§onditions - currentPlaylistItem and the audioPlayer are not null at this point
 
 
 
@@ -338,11 +338,4 @@ public class MediaService extends BasePlaylistService<MediaItem, PlaylistManager
         return true;
     }
 
-    private void getTrackUrl(final String videoId) {
-        if (videoId == null) {
-            throw new IllegalArgumentException("null trackId");
-        }
-
-
-    }
 }

@@ -8,11 +8,16 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.chilliwifi.you2b.searchyou2b.playlists.PlaylistItemsFragment;
 import com.chilliwifi.you2b.searchyou2b.view.SearchYouTubeFragment;
 import com.chilliwifi.you2b.videoplayer.AudioPlayerActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -88,5 +93,31 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // action with ID action_refresh was selected
+            case R.id.favourites:
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, new PlaylistItemsFragment())
+                            .addToBackStack(null)
+                            .commit();
+
+                break;
+            // action with ID action_settings was selected
+            default:
+                break;
+        }
+
+        return true;
     }
 }
